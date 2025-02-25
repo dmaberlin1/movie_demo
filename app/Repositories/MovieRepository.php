@@ -13,7 +13,8 @@ final class MovieRepository
 
     public function __construct(Database $database)
     {
-        $this->db = $database->getConnection();
+        $this->db = $database::getInstance()->getConnection();
+
     }
 
     public function getAll(int $limit = 10, int $offset = 0): array

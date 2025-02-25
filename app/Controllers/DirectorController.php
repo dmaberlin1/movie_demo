@@ -2,7 +2,6 @@
 
 namespace App\Controllers;
 
-
 use App\Services\DirectorService;
 
 final class DirectorController extends Controller
@@ -14,40 +13,64 @@ final class DirectorController extends Controller
         $this->directorService = $directorService;
     }
 
-    public function index()
+    public function index(): void
     {
         $directors = $this->directorService->getAllDirectors();
-        require_once __DIR__ . '/../../views/blade/director/index.blade.php';
+        $this->view('director.index', ['directors' => $directors]);
     }
 
-    public function create()
+    public function show($id): void
+    {
+        $director = $this->directorService->getDirectorById($id);
+        $this->view('director.show', ['director' => $director]);
+    }
+
+    public function create(): void
     {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $this->directorService->createDirector($_POST);
-            header('Location: /directors');
-        } else {
-            require_once __DIR__ . '/../../views/blade/director/form.blade.php';
+            $this->handleCreateDirector($_POST);
         }
+
+        $this->view('director.form');
     }
 
-    public function edit()
+    private function handleCreateDirector(array $data): void
     {
-        $id = $_GET['id'] ?? null;
+        $this->directorService->createDirector($data);
+        header('Location: /directors');
+        exit;
+    }
+
+    public function edit($id): void
+    {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $this->directorService->updateDirector($id, $_POST);
             header('Location: /directors');
-        } else {
-            $director = $this->directorService->getDirectorById($id);
-            require_once __DIR__ . '/../../views/blade/director/form.blade.php';
+            exit;
         }
+
+        $director = $this->directorService->getDirectorById($id);
+        $this->view('director.form', ['director' => $director]);
     }
 
-    public function delete()
+    public function update($id): void
     {
-        $id = $_GET['id'] ?? null;
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $this->directorService->updateDirector($id, $_POST);
+            header('Location: /directors');
+            exit;
+        }
+
+        $director = $this->directorService->getDirectorById($id);
+        $this->view('director.form', ['director' => $director]);
+    }
+
+    public function delete($id): void
+    {
         if ($id) {
             $this->directorService->deleteDirector($id);
             header('Location: /directors');
+            exit;
         }
     }
 }

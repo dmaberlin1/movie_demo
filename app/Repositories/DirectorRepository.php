@@ -12,7 +12,7 @@ class DirectorRepository
 
     public function __construct(Database $database)
     {
-        $this->db = $database->getConnection();
+        $this->db = $database::getInstance()->getConnection();
     }
 
     public function findById(int $id): ?Director

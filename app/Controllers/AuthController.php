@@ -8,9 +8,6 @@ final class AuthController extends Controller
 {
     private AuthService $authService;
 
-    /**
-     * @param AuthService $authService
-     */
     public function __construct(AuthService $authService)
     {
         $this->authService = $authService;
@@ -18,25 +15,31 @@ final class AuthController extends Controller
 
     public function index(): void
     {
-        $this->render('auth.login');
+        $this->view('auth.login');
     }
 
-
-    public function login()
+    public function login(): void
     {
-        if($_SERVER['REQUEST_METHOD']==='POST'){
-            $username=$_POST['username']??'';
-            $password=$_POST['password']??'';
-            if($this->authService->attempt($username,$password)){
-                $_SESSION['user']=$username;
-                header('Location: : /movies');
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $username = $_POST['username'] ?? '';
+            $password = $_POST['password'] ?? '';
+
+            if (empty($username) || empty($password)) {
+                $this->view('auth.login', ['error' => 'Username and password are required']);
+                return;
+            }
+
+            if ($this->authService->attempt($username, $password)) {
+                $_SESSION['user'] = $username;
+                header('Location: /movies');
                 exit;
+            } else {
+                $this->view('auth.login', ['error' => 'Invalid credentials']);
             }
         }
-        $this->render('auth.login',['error'=>'Invalid credentials']);
     }
 
-    public function logout()
+    public function logout(): void
     {
         session_destroy();
         header('Location: /');

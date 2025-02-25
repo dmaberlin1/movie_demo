@@ -13,40 +13,64 @@ final class MovieController extends Controller
         $this->movieService = $movieService;
     }
 
-    public function index()
+    public function index(): void
     {
         $movies = $this->movieService->getAllMovies();
-        require_once __DIR__ . '/../../views/blade/movie/index.blade.php';
+        $this->view('movie.index', ['movies' => $movies]);
     }
 
-    public function create()
+    public function show($id): void
+    {
+        $movie = $this->movieService->getMovieById($id);
+        $this->view('movie.show', ['movie' => $movie]);
+    }
+
+    public function create(): void
     {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $this->movieService->createMovie($_POST);
-            header('Location: /movies');
-        } else {
-            require_once __DIR__ . '/../../views/blade/movie/form.blade.php';
+            $this->handleCreateMovie($_POST);
         }
+
+        $this->view('movie.form');
     }
 
-    public function edit()
+    private function handleCreateMovie(array $data): void
     {
-        $id = $_GET['id'] ?? null;
+        $this->movieService->createMovie($data);
+        header('Location: /movies');
+        exit;
+    }
+
+    public function edit($id): void
+    {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $this->movieService->updateMovie($id, $_POST);
             header('Location: /movies');
-        } else {
-            $movie = $this->movieService->getMovieById($id);
-            require_once __DIR__ . '/../../views/blade/movie/form.blade.php';
+            exit;
         }
+
+        $movie = $this->movieService->getMovieById($id);
+        $this->view('movie.form', ['movie' => $movie]);
     }
 
-    public function delete()
+    public function update($id): void
     {
-        $id = $_GET['id'] ?? null;
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $this->movieService->updateMovie($id, $_POST);
+            header('Location: /movies');
+            exit;
+        }
+
+        $movie = $this->movieService->getMovieById($id);
+        $this->view('movie.form', ['movie' => $movie]);
+    }
+
+    public function delete($id): void
+    {
         if ($id) {
             $this->movieService->deleteMovie($id);
             header('Location: /movies');
+            exit;
         }
     }
 }

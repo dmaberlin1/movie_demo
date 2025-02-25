@@ -10,7 +10,7 @@ class UserRepository
     private PDO $db;
     public function __construct(Database $database)
     {
-        $this->db = $database->getConnection();
+        $this->db = $database::getInstance()->getConnection();
     }
 
     public function findByUsername(string $username): ?array
